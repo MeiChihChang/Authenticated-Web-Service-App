@@ -6,9 +6,6 @@ import (
 	"errors"
 	"encoding/json"
 	"context"
-	//"crypto/tls"
-	//"time"
-
 	"net/http"
 	"net/url"
 
@@ -45,8 +42,8 @@ type TokenPair struct {
 	RefreshExpiresIn    int `json:"refresh_expires_in"`
 }
 
+// authenticate user with openid-connect from keycloak
 func (c *Client) login(kLoginPayload *KLoginPayload) (*TokenPair, error) {
-
 	body := url.Values{
 		"client_id": {kLoginPayload.clientID},
 		"client_secret": {kLoginPayload.clientSecret},
@@ -60,6 +57,7 @@ func (c *Client) login(kLoginPayload *KLoginPayload) (*TokenPair, error) {
 
 	requestURL := "http://localhost:8080/realms/rest-golang/protocol/openid-connect/token"
 
+    // get access token by openid-connect from keycloak	
 	req, err := http.NewRequest(http.MethodPost, requestURL, strings.NewReader(encodedbody))
 	if err != nil {
 			log.Printf("client: could not create request: %s\n", err)
@@ -79,6 +77,7 @@ func (c *Client) login(kLoginPayload *KLoginPayload) (*TokenPair, error) {
 		return nil, errors.New("fail to keyloak login")
 	} 
 
+	// return access token & refresh token & expire time
 	tokenpairs := &TokenPair{}
 	json.NewDecoder(resp.Body).Decode(tokenpairs)
 	//log.Printf("TokenPair %s", tokenpairs.ExpiresIn)	
@@ -92,8 +91,7 @@ type Res401Struct struct {
 	Message  string `json:"message" example:"authorisation failed"`
 }
 
-//claims component of jwt contains mainy fields , we need only roles of DemoServiceClient
-//"DemoServiceClient":{"DemoServiceClient":{"roles":["pets-admin","pet-details","pets-search"]}},
+//claims component of jwt contains mainy fields , we need only roles 
 type Claims struct {
 	ResourceAccess client `json:"resource_access,omitempty"`
 	JTI            string `json:"jti,omitempty"`
@@ -110,6 +108,7 @@ type clientRoles struct {
 
 var RealmConfigURL string = "http://localhost:8080/realms/rest-golang"
 
+// IsAuthorizedJWT verify token by online keycloak verifier and access permission with user role  
 func (c *Client) IsAuthorizedJWT(w http.ResponseWriter, r *http.Request, clientID string, role string) error {
 		// get auth header
 		authHeader := r.Header.Get("Authorization")
@@ -143,6 +142,7 @@ func (c *Client) IsAuthorizedJWT(w http.ResponseWriter, r *http.Request, clientI
 			return err
 		}
 
+		// verify token
 		oidcConfig := &oidc.Config{
 			SkipClientIDCheck: true,
 		}
@@ -154,6 +154,7 @@ func (c *Client) IsAuthorizedJWT(w http.ResponseWriter, r *http.Request, clientI
 			return err
 		}
 
+		// get claims to check role permission
 		var IDTokenClaims Claims // ID Token payload is just JSON.
 		if err := idToken.Claims(&IDTokenClaims); err != nil {
 			log.Printf("Claims error :%v",err)
@@ -175,6 +176,7 @@ func (c *Client) IsAuthorizedJWT(w http.ResponseWriter, r *http.Request, clientI
 		return errors.New("user not allowed to access this api")
 }
 
+// authorisationFailed writes response error code 
 func (c *Client) authorisationFailed(message string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusUnauthorized)

@@ -11,27 +11,46 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// HelloPayload represents the response payload for route /home
+type HelloPayload struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Version string `json:"version"`
+}
+// @Title Home
+// @Summary show status of server
+// @Description this is a method to show the server alive
+// @Produces json
+// @Success 200 {object} HelloPayload
+// @Failure 400 {string} string "bad request"
+// @Router  / [get]
 func (app *application) Home(w http.ResponseWriter, r *http.Request) {
-	var payload = struct {
-		Status  string `json:"status"`
-		Message string `json:"message"`
-		Version string `json:"version"`
-	}{
+	var payload = HelloPayload{
 		Status:  "active",
-		Message: "SwissData up and running",
+		Message: "Authenticated Web Services up and running",
 		Version: "1.0.0",
 	}
 
 	_ = app.writeJSON(w, http.StatusOK, payload)
 }
 
+type LoginPayload struct {
+	Username    string `json:"username"`
+	Password string `json:"password"`
+}
+// @Title login
+// @Summary authenticate user for login 
+// @Description authenticate user for login the server and get JWT tokens with openid-connect by keycloak
+// @Produces json
+// @param Username body LoginPayload true "user name registered at keycloak"
+// @param Password body LoginPayload true "Password registered at keycloak" 
+// @Success 200 {object} TokenPair
+// @Failure 400 {string} string "bad request"
+// @Router /login [post]
 func (app *application) login(w http.ResponseWriter, r *http.Request) {
-	// read json payload
-	var requestPayload struct {
-		Username    string `json:"username"`
-		Password string `json:"password"`
-	}
+	var requestPayload LoginPayload
 
+	// read json payload
 	err := app.readJSON(w, r, &requestPayload)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
@@ -48,26 +67,43 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 		clientSecret : app.keycloak.clientSecret,
 	}
 
-	//log.Printf(" KLoginPayload :%s", KLoginPayload)
+	// authenticate user with Keycloak's payload settings
 	tokens, err := app.client.login(KLoginPayload)
 	if err != nil {
 		app.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
 	
+	// return valid tokens and token expire time
 	app.writeJSON(w, http.StatusAccepted, tokens)
 }
 
+// @Title logout
+// @Summary logout user 
+// @Description logout user
+// @Success 200 
+// @Failure 400 {string} string "bad request"
+// @Router /logout [post]
 func (app *application) logout(w http.ResponseWriter, r *http.Request) {
 	//http.SetCookie(w, app.auth.GetExpiredRefreshCookie())
 	w.WriteHeader(http.StatusAccepted)
 }
 
+// Organization represents the response payload with organization's information
+type Organization struct {
+	Id   int `json:"id"`
+	Name string `json:"name"`
+}
+
+// @Title organization_list
+// @Summary get opendata.swiss's organization list
+// @Description get opendata.swiss's organization list with JWT token
+// @Produces json
+// @Success 200 {array} Organization
+// @Failure 400 {string} string "bad request"
+// @Router  /swissdata/organizations [get]
+// @Security Bearer
 func (app *application) organization_list(w http.ResponseWriter, r *http.Request) {
-	type Organization struct {
-		Id   int `json:"id"`
-		Name string `json:"name"`
-	}
 	type Organization_List struct {
 		Help string `json:"help"`
 		Success bool `json:"success"`
@@ -76,6 +112,7 @@ func (app *application) organization_list(w http.ResponseWriter, r *http.Request
 
 	requestURL := "https://ckan.opendata.swiss/api/3/action/organization_list"
 
+	// get organization list
 	resp, err := http.Get(requestURL)
 	if err != nil {
 		log.Printf("error making http request: %s\n", err)
@@ -100,7 +137,6 @@ func (app *application) organization_list(w http.ResponseWriter, r *http.Request
         app.errorJSON(w, err, http.StatusBadRequest)
 		return
     }
-	//log.Printf("response : %s", response)
 
     var organizations []Organization
 
@@ -112,6 +148,25 @@ func (app *application) organization_list(w http.ResponseWriter, r *http.Request
 	_ = app.writeJSON(w, http.StatusOK, organizations)
 }
 
+// SwissData represents the response payload with swissdata's information
+type SwissData struct {
+	Id   int `json:"id"`
+	Owner_org string `json:"owner_org"`
+	Maintainer string  `json:"maintainer"`
+	Issued string  `json:"issued"`
+	Maintainer_email string  `json:"maintainer_email"`
+	Download_url  string `json:"download_url"`
+}
+
+// @Title data_list
+// @Summary get opendata.swiss's data list 
+// @Description get opendata.swiss's data list with JWT token by organization name
+// @param organization_name path string true "organization name" 
+// @Produces json
+// @Success 200 {array} SwissData
+// @Failure 400 {string} string "bad request"
+// @Router  /swissdata/datalist/{organization_name} [get]
+// @Security Bearer
 func (app *application) data_list(w http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
 	if name == "" {
@@ -147,17 +202,9 @@ func (app *application) data_list(w http.ResponseWriter, r *http.Request) {
 		Result swissData_List_Result `json:"result"`
 	}
 
-	type swissData struct {
-		Id   int `json:"id"`
-		Owner_org string `json:"owner_org"`
-		Maintainer string  `json:"maintainer"`
-		Issued string  `json:"issued"`
-		Maintainer_email string  `json:"maintainer_email"`
-		Download_url  string `json:"download_url"`
-	}
-
 	requestURL := "https://ckan.opendata.swiss/api/3/action/package_search?fq=organization:" + name
 
+	// get data list
 	resp, err := http.Get(requestURL)
 	if err != nil {
 		log.Printf("error making http request: %s\n", err)
@@ -178,20 +225,20 @@ func (app *application) data_list(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response swissData_List
-	//var p2 interface{} 
+	
     if err = json.Unmarshal(body, &response); err != nil {
         app.errorJSON(w, err, http.StatusBadRequest)
 		return
     }
-	//log.Printf("response : %s", response)
 
-	var datalist []swissData
+	// convert to response payload
+	var datalist []SwissData
 	count := 0
 	if (response.Result.Count > 0) {
 		for _, element := range response.Result.Results { 
 			for _, ele := range element.Resources {
 				if ele.Download_url != "" {
-					datalist = append(datalist, swissData{
+					datalist = append(datalist, SwissData{
 						Id: count, 
 						Owner_org: element.Owner_org, 
 						Maintainer: element.Maintainer,

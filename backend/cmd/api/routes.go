@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+// routes set up server's API points
 func (app *application) routes() http.Handler {
 	// create a router mux
 	mux := chi.NewRouter()
@@ -17,17 +18,15 @@ func (app *application) routes() http.Handler {
 	mux.Get("/", app.Home)
 
 	mux.Post("/login", app.login)
-	//mux.Get("/refresh", app.refreshToken)
-	mux.Get("/logout", app.logout)
+	mux.Post("/logout", app.logout)
 
+	// path /swissdata is protected by authenticated valid JWT token
 	mux.Route("/swissdata/", func(mux chi.Router){
 		mux.Use(app.authRequired)
 
 		mux.Get("/organizations", app.organization_list)
 		mux.Get("/datalist/{name}", app.data_list)	
 	})
-
-	
 
 	return mux
 }

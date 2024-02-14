@@ -2,6 +2,7 @@ package main
 
 import "net/http"
 
+// avoid CORS vulnerabilities and set frontend is allowed
 func (app *application) enableCORS(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
@@ -17,6 +18,7 @@ func (app *application) enableCORS(h http.Handler) http.Handler {
 	})
 }
 
+// require valid JWT token at header
 func (app *application) authRequired(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		err := app.client.IsAuthorizedJWT(w, r, app.keycloak.clientID, app.keycloak.userRole)

@@ -1,0 +1,158 @@
+basePath: /
+definitions:
+  main.HelloPayload:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+      version:
+        type: string
+    type: object
+  main.LoginPayload:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  main.Organization:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  main.SwissData:
+    properties:
+      download_url:
+        type: string
+      id:
+        type: integer
+      issued:
+        type: string
+      maintainer:
+        type: string
+      maintainer_email:
+        type: string
+      owner_org:
+        type: string
+    type: object
+  main.TokenPair:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_expires_in:
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: meichang@arch.nctu.edu.tw
+    name: API Support
+  description: This is a simple backend server for authenticated web services
+  termsOfService: http://localhost:8000
+  title: Authenticated Web Services
+  version: "1.0"
+paths:
+  /:
+    get:
+      description: this is a method to show the server alive
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.HelloPayload'
+        "400":
+          description: bad request
+          schema:
+            type: string
+      summary: show status of server
+  /login:
+    post:
+      description: authenticate user for login the server and get JWT tokens with
+        openid-connect by keycloak
+      parameters:
+      - description: user name registered at keycloak
+        in: body
+        name: Username
+        required: true
+        schema:
+          $ref: '#/definitions/main.LoginPayload'
+      - description: Password registered at keycloak
+        in: body
+        name: Password
+        required: true
+        schema:
+          $ref: '#/definitions/main.LoginPayload'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.TokenPair'
+        "400":
+          description: bad request
+          schema:
+            type: string
+      summary: authenticate user for login
+  /logout:
+    post:
+      description: logout user
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: bad request
+          schema:
+            type: string
+      summary: logout user
+  /swissdata/datalist/{organization_name}:
+    get:
+      description: get opendata.swiss's data list with JWT token by organization name
+      parameters:
+      - description: organization name
+        in: path
+        name: organization_name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.SwissData'
+            type: array
+        "400":
+          description: bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: get opendata.swiss's data list
+  /swissdata/organizations:
+    get:
+      description: get opendata.swiss's organization list with JWT token
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Organization'
+            type: array
+        "400":
+          description: bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: get opendata.swiss's organization list
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

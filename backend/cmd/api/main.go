@@ -18,6 +18,17 @@ type application struct {
 	keycloak Keycloak
 }
 
+// @title Authenticated Web Services
+// @version 1.0
+// @description This is a simple backend server for authenticated web services 
+// @termsOfService http://localhost:8000
+// @contact.name API Support
+// @contact.email meichang@arch.nctu.edu.tw
+// @host localhost:8000
+// @BasePath /
+// @securitydefinitions.apikey Bearer
+// @in header
+// @name Authorization
 func main() {
 	// 
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
@@ -26,12 +37,8 @@ func main() {
 	
 	tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true},}
     app.client = &Client{httpClient: &http.Client{Timeout: 6000 * time.Second,Transport: tr,},}
-	// read from command line
-	/*flag.StringVar(&app.keycloak.clientID, "clientID", "rest-golang-auth", "signing id")
-	flag.StringVar(&app.keycloak.clientSecret, "clientSecret", "Nqe01UzPudKzXKbdqnLZ09XSLV3Qw0qw", "signing secret")
-	flag.StringVar(&app.keycloak.userRole, "UserRole", "swiss-data-user", "signing issuer")
-	flag.Parse()*/
-
+	
+    // read environment variable
 	err := godotenv.Load(".env.local")
 	if err != nil {
 		log.Fatal(err)
@@ -40,7 +47,6 @@ func main() {
 	app.keycloak.clientID = os.Getenv("ClientID")
 	app.keycloak.clientSecret = os.Getenv("ClientSecret")
 	app.keycloak.userRole = os.Getenv("UserRole")
-	
 
 	log.Println("Starting application on port", port)
 

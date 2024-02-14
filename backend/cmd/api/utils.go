@@ -13,6 +13,7 @@ type JSONResponse struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
+// writeJSON generates JSON data
 func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers ...http.Header) error {
 	out, err := json.Marshal(data)
 	if err != nil {
@@ -35,6 +36,7 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data interf
 	return nil
 }
 
+// writeJSON reads JSON data
 func (app *application) readJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	maxBytes := 1024 * 1024 // one megabyte
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
@@ -56,6 +58,7 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, data in
 	return nil
 }
 
+// errorJSON creates error JSON
 func (app *application) errorJSON(w http.ResponseWriter, err error, status ...int) error {
 	statusCode := http.StatusBadRequest
 
