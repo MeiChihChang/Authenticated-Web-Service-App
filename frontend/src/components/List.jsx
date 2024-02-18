@@ -1,5 +1,11 @@
 import { Table, Row, Col } from "reactstrap"
 
+/**
+ * @description This component renders a datsset table to the user.
+ *
+ * @param {[data]} datalist dataset list.
+ * @returns {DataList} A React element that renders a datsset list table by selected organization name.
+ */
 function DataList({datalist}) {
   //console.log("datalist", datalist.length, datalist)
   return (

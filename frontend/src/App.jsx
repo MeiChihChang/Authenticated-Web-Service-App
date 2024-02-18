@@ -10,12 +10,12 @@ import {tokenLoader} from './util/auth';
 
 import {VerifiedContext} from './store/global-context';
 
-
 import {
   createBrowserRouter,
   RouterProvider,
 } from 'react-router-dom';
 
+// Router Setup with path
 const router = createBrowserRouter([
   {
     path: '/',

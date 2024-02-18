@@ -4,6 +4,12 @@ import { Outlet, useLoaderData, useSubmit } from 'react-router-dom';
 import MainNavigation from '../components/MainNavigation';
 import { getTokenDuration } from '../util/auth';
 
+/**
+ * @description This component renders a RootLayout to the user.
+ *
+ * @param None.
+ * @returns {RootLayout} A React element that renders a Root layout.
+ */
 function RootLayout() {
   const token = useLoaderData();
   const submit = useSubmit();

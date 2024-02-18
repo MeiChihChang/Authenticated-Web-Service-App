@@ -1,5 +1,11 @@
 import { Container, Row, Col} from 'reactstrap';
 
+/**
+ * @description This component renders a HomePage to the user.
+ *
+ * @param None.
+ * @returns {HomePage} A React element that renders a HomePage.
+ */
 function HomePage() {
   return (
     <>

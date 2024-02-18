@@ -1,13 +1,26 @@
 import AuthForm from '../components/AuthForm';
 import { json, redirect} from 'react-router-dom';
 import { setAuthToken } from '../util/auth';
+import sha256 from 'crypto-js/sha256'
 
+/**
+ * @description This component renders a Authentication page.
+ *
+ * @param None
+ * @returns {AuthForm} A React element that renders a Authenticaion page.
+ */
 function AuthenticationPage() {
   return <AuthForm />;
 }
 
 export default AuthenticationPage;
 
+/**
+ * @description This route action is called when AuthenticationPage is submitted.
+ *
+ * @param {request} request contains formData.
+ * @returns {redirect} redirect to root path.
+ */
 export async function action({ request }) {
     const data = await request.formData();
     const authData = {
@@ -26,7 +39,7 @@ export async function action({ request }) {
     });
   
     if (response.status === 422 || response.status === 401)   {
-        return response;
+        throw json({message: 'authentication error'}, {status: response.status});
     }
   
     if (!response.ok) {

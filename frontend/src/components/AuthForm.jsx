@@ -2,7 +2,12 @@ import { Form, useNavigation } from 'react-router-dom';
 
 import { Container, Row, Col, Button, Input, Label} from 'reactstrap'
 
-
+/**
+ * @description This component renders a login to the user.
+ *
+ * @param None.
+ * @returns {AuthForm} A React element that renders a login asking to input username & password.
+ */
 function AuthForm() {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';

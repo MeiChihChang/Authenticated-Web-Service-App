@@ -13,6 +13,12 @@ import VerifyModel from '../components/VerifyModel';
 import { getAuthToken} from '../util/auth';
 import {VerifiedContext} from '../store/global-context';
 
+/**
+ * @description This component renders a DataListPage to the user.
+ *
+ * @param None.
+ * @returns {DataListPage} A React element that renders a DataListPage including a combox list, a verifier model dialog and a table datalist.
+ */
 function DataListPage() {
   const { organizations } = useRouteLoaderData('datalist');
 

@@ -1,6 +1,12 @@
 import {Button, NavbarBrand, Navbar, Nav,NavItem, NavLink, Container, Row, Col} from 'reactstrap';
 import {Form, useRouteLoaderData} from 'react-router-dom';
 
+/**
+ * @description This component renders a main navibar.
+ *
+ * @param None.
+ * @returns {MainNavigation} A React element that renders a main navibar.
+ */
 function MainNavigation() {
   const token = useRouteLoaderData('root');
 
