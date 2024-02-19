@@ -4,37 +4,37 @@
 
 This App includes a web service where users authenticate through a login page and subsequently have the ability to download a dataset from the OpenData.Swiss platform after completing a simple task.
 
-The authenticated users are registered at Keycloak with specific role access permission. They must be granted this role access permission then they have the right to see and download dataset from OpenData.Swiss.
+Authenticated users are registered with Keycloak with specific role access permissions. They must be granted these role access permissions to have the right to view and download datasets from OpenData.Swiss.
 
 This App aims to protect sensitive OpenData.Swiss dataset through:
 
-- **Authenticity:** Only valid authenticated users with spefic access permission can login and access dataset from OpenData.Swiss.
+- **Authenticity:** Only valid authenticated users with specific access permissions can log in and access datasets from OpenData.Swiss.
 
-- **Confidentiality:** Senstive dataset from OpenData.Swiss to download is only limited valid users.
+- **Confidentiality:** Sensitive datasets from OpenData.Swiss are only accessible to valid users.
   
 
 ## Prequirement
 
-Install Go 1.8 higher and node.js v18.18.0 higher and docker
+Install Go 1.8 or higher and Node.js v18.18.0 or higher, and Docker.
 
 
 ## Setup Keycloak
 
-Keycloak is an Open Source Identity and Access Management and install by docker as following command:
+Keycloak is an open-source Identity and Access Management system installed via Docker using the following command:
 ```bash
 docker run -d -p 8080:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin --name keycloak jboss/keycloak:4.1.0.Final
 ```
 ![plot](https://github.com/MeiChihChang/Authenticated-Web-Service-App/assets/37042542/a730c90f-7aef-4120-9f1c-f3fa9b5ed053)
-< The above image is from https://medium.com/@allusaiprudhvi999/authentication-and-authorization-in-golang-microservice-using-an-open-source-iam-called-keycloak-46f03a26248f >
+< Reference Image (Image source: https://medium.com/@allusaiprudhvi999/authentication-and-authorization-in-golang-microservice-using-an-open-source-iam-called-keycloak-46f03a26248f) >
 
-Follow the above diagram, you need to setup **Realm**, **Client**, **User**, **Roles**. And assign roles to the user then it will grant ths user's access permission to access opendata.swiss.
+Follow the above diagram to setup **Realm**, **Client**, **User**, **Roles**. Assign roles to users to grant access permissions to opendata.swiss.
 
-Set these Client_ID, Client_Secret, Realm values from Keycloak at backend *.env.local* file then this APP can adapt to your setting. 
+Set the *Client_ID*, *Client_Secret*, and *Realm* values from Keycloak at the backend .env.local file so that this app can adapt to your settings.
 
 
 ## Setup servers
 
-There are two servers for frontend and backend. Please download source codes then run the following commands:
+There are two servers for frontend and backend. Download the source code and run the following commands:
 ```bash
 frontend> npm install
 frontend> npm start
@@ -47,17 +47,19 @@ Then appication will launch as follows:
 
 ## How to use
 
-Step 1. Login with your username & password as registerd at Keycloak
+Step 1. Log in with your username & password as registered at Keycloak.
 
-Step 2. Navigate to OpenData.Swiss to see the listed dataset from different organizations.
+Step 2. Navigate to OpenData.Swiss to see the listed datasets from different organizations.
 
-Step 3. You need to pass the math test then you can see this page.
+Step 3. You need to pass the math test, then you can see this page.
 
-Step 4. Select the organization to see the list of available dataset downdload urls.
+Step 4. Select the organization to see the list of available dataset download URLs.
 
 
-## SWagger
+## Swagger
 
-There is a swagger yaml file under backend/cmd/api/doc, which shows the server APIs
+There is a Swagger YAML file under backend/cmd/api/doc, which shows the server APIs.
 
 ![plot](https://github.com/MeiChihChang/Authenticated-Web-Service-App/assets/37042542/830f3dec-8f73-4382-bbc2-6dacd313d350)
+
+
